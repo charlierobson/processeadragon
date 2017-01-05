@@ -6,7 +6,7 @@ class CharacterSet
   {
     color c = color(255);
 
-    byte[] chardata = loadBytes("src\\hackery\\charsets.bin");
+    byte[] chardata = loadBytes("src/hackery/charsets.bin");
     
     int nChars = chardata.length / 8;
 

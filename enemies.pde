@@ -1,6 +1,6 @@
 abstract class Enemy
 {
-  int _x, _y, _c;
+  int _x, _iy, _y, _c;
   color _colour;
   
   boolean _alive;
@@ -11,15 +11,27 @@ abstract class Enemy
   Enemy(int x, int y, int character, color colour)
   {
     _x = x;
-    _y = y * 16;
+    _iy = y * 16;
     _c = character;
     _colour = colour;
     _alive = true;
     _active = false;
   }
 
-  abstract void update();
+  abstract void update(int q);
 
+  void destroyed()
+  {
+    _alive = false;
+  }
+  
+  void reset()
+  {
+    _y = _iy;
+    _alive = true;
+    _active = false;
+  }
+  
   void draw(int q)
   {
     if (!_alive) return;
@@ -31,6 +43,19 @@ abstract class Enemy
 
 //
 
+class StaticMine extends Enemy
+{
+  StaticMine(int x, int y)
+  {
+    super(x, y, 63, color(0));
+  }
+  
+  void update(int q)
+  {
+    draw(q);
+  }
+}
+
 class Mine extends Enemy
 {
   Mine(int x, int y)
@@ -38,7 +63,7 @@ class Mine extends Enemy
     super(x, y, 63, color(0));
   }
 
-  void update()
+  void update(int q)
   {
     if (!_alive) return;
     
@@ -60,6 +85,8 @@ class Mine extends Enemy
       }
       --_timeToActivate;
     }
+    
+    draw(q);
   }
 }
 
@@ -70,7 +97,8 @@ class Stalactite extends Enemy
     super(x, y, 55, color(200));
   }
 
-  void update()
+  void update(int q)
   {
+    draw(q);
   }
 }
