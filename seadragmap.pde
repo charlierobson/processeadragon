@@ -6,7 +6,7 @@ ArrayList<Enemy> enemies;
 
 void setup()
 {
-  size(1000, 200);
+  size(320, 200);
 
   cset = new CharacterSet();
 
@@ -64,7 +64,7 @@ void setup()
     int type = (m & 0xc000) >> 14;
 
     if (type == 2) enemies.add(new Stalactite(x, y));
-    else if (type == 2) enemies.add(new Mine(x, y));
+    else if (type == 3) enemies.add(new Mine(x, y));
     else
     {
       playfield.image(cset._charset[63], x * 16, y * 16);
@@ -171,11 +171,29 @@ void draw()
   if (up && subY > 6) --subY;
   else if (down) ++subY;
 
-  if (left) --subX;
-  else if (right) ++subX;
+  if (left) subX -= 0.5;
+  else if (right) subX += 0.5;
 
   image(playfield, -q, 0);
 
+  int edtf = 0;
+  int char0 = (int)(q / 16);
+  int nchars = (width + 15) / 16;
+  int iq = (int)q;
+  
+  for(Enemy enemy : enemies)
+  {
+    if (enemy._x >= char0 && enemy._x < char0 + nchars + 1)
+    {
+      enemy.update();
+      enemy.draw(iq);
+      ++edtf;
+    }
+  }
+
+  println(edtf);
+  noTint();
+  
   if (alive)
   {
     PImage collision = get((int)subX, (int)subY, 56, 24);
