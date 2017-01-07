@@ -8,7 +8,7 @@ byte[] map;
 
 Sub sub;
 
-int restarts[] = { 0x0000, 0x0048, 0x00a8, 0x0109, 0x017e, 0x0218 }; 
+int restarts[] = { 0x0000, 0x0048+5, 0x00a8+5, 0x0109+5, 0x017e+5, 0x0218+5 }; 
 int restartXY[]= { 12,12, 112,12, 112,34, 112,12, 112,12, 112,12 };
 
 float q = 0;
@@ -125,6 +125,8 @@ void restart()
     ++restartPoint;
   }
   --restartPoint;
+
+restartPoint = 4;
 
   q = restarts[restartPoint] * 16;
 
