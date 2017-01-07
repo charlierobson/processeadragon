@@ -1,18 +1,41 @@
-PImage sub;
+PImage subSprite;
 byte[] mayans;
 PGraphics playfield;
 CharacterSet cset;
 ArrayList<Enemy> enemies;
 Bullet[] bullets;
+byte[] map;
+
+Sub sub;
+
+int restarts[] = { 0x0000, 0x0048, 0x00a8, 0x0109, 0x017e, 0x0218 }; 
+int restartXY[]= { 12,12, 112,12, 112,34, 112,12, 112,12, 112,12 };
+
+float q = 0;
+float hiq = 0;
+int restartTimer;
+int frameMillis, lastMillis;
+
+int minSubY = 12;
+int restartPoint;
+
+void masterReset()
+{
+  restartPoint = 0;
+}
 
 void setup()
 {
   size(320, 200);
+  
+  masterReset();
 
   cset = new CharacterSet();
 
-  sub = loadImage("sub-x2.png");
-  sub.loadPixels();
+  subSprite = loadImage("sub.png");
+  subSprite.loadPixels();
+
+  sub = new Sub();
 
   playfield = createGraphics(600*16, 11*16);
   playfield.beginDraw();
@@ -23,24 +46,18 @@ void setup()
   playfield.fill(0);
   playfield.rect(0, 160, 600*16, 16);
 
-
-  byte[] map = loadBytes("src/hackery/sdmap.bin");
+  map = loadBytes("src/hackery/sdmap.bin");
   for (int i = 0; i < map.length; i++)
   {
-    if (map[i] == 0) continue;
-
-    if (map[i] > 0 && map[i] < 64)
-    {
-      playfield.tint(color(80));
-      playfield.image(cset._charset[map[i]], (i % 600) * 16, (i / 600) * 16);
-    } else
-    {
-      playfield.tint(color(180));
-      playfield.image(cset._charset[map[i] & 0x3f], (i % 600) * 16, (i / 600) * 16);
-    }
+    int c = map[i] & 0x3f;
+    if (c == 0) continue;
+    int d = map[i] & 0xc0;
+    if (d == 0) playfield.tint(color(100,40,40));
+    else playfield.tint(0);
+    playfield.image(cset._charset[c], (i % 600) * 16, (i / 600) * 16);
   }
 
-  bullets = new Bullet[2];
+  bullets = new Bullet[5];
   for(int i = 0; i < bullets.length; ++i)
   {
     bullets[i] = new Bullet();
@@ -72,12 +89,24 @@ void setup()
 
     if (type == 2) enemies.add(new Stalactite(x, y));
     else if (type == 3) enemies.add(new Mine(x, y));
-    else enemies.add(new StaticMine(x, y));
+    else
+    {
+      int ty = y + 1;
+      int tetherlen = 0;
+      while(ty < 10 && map[x + ty * 600] == 0)
+      {
+        ++tetherlen;
+        ++ty;
+      }
+      enemies.add(new StaticMine(x, y, tetherlen));
+    }
   }
 
-  ///for (int i = 0; i < cset._charset.length; i++) {
-  ///playfield.tint((i&1)!=0 ? color(200) : color(255));
-  ///playfield.image(cset._charset[i], i * 16, 160);
+  // debug show the character set
+  ///for (int i = 0; i < cset._charset.length; i++)
+  ///{
+  ///  playfield.tint((i&1)!=0 ? color(200) : color(255));
+  ///  playfield.image(cset._charset[i], i * 16, 160);
   ///}
 
   playfield.endDraw();
@@ -88,84 +117,19 @@ void setup()
   restart();
 }
 
-boolean up = false;
-boolean down = false;
-boolean left = false;
-boolean right = false;
-boolean shoot = false;
-
-void keyPressed()
-{
-  if (key == 'w') { 
-    up = true; 
-    down = false;
-  } else if (key == 's') { 
-    down = true; 
-    up = false;
-  } else if (key == 'a') { 
-    left = true; 
-    right = false;
-  } else if (key == 'd') { 
-    right = true; 
-    left = false;
-  } else if (key == CODED)
-  {
-    if (keyCode == SHIFT) {
-      shoot = true;
-    }
-    else if (keyCode == UP) { 
-      up = true; 
-      down = false;
-    } else if (keyCode == DOWN) { 
-      down = true; 
-      up = false;
-    } else if (keyCode == LEFT) { 
-      left = true; 
-      right = false;
-    } else if (keyCode == RIGHT) { 
-      right = true; 
-      left = false;
-    }
-  }
-}
-
-void keyReleased()
-{
-  if (key == 'w') { 
-    up = false;
-  } else if (key == 's') { 
-    down = false;
-  } else if (key == 'a') { 
-    left = false;
-  } else if (key == 'd') { 
-    right = false;
-  } else if (key == CODED)
-  {
-    if (keyCode == UP) { 
-      up = false;
-    } else if (keyCode == DOWN) { 
-      down = false;
-    } else if (keyCode == LEFT) { 
-      left = false;
-    } else if (keyCode == RIGHT) { 
-      right = false;
-    }
-  }
-}
-
-
-float q;
-float subY, subX;
-boolean alive;
-int restartTimer;
-int frameMillis, lastMillis;
-
 void restart()
 {
-  q = 0;
-  subY = 6;
-  subX = 0;
-  alive = true;
+  restartPoint = 0;
+  while(restartPoint < 5 && restarts[restartPoint] <= hiq / 16)
+  {
+    ++restartPoint;
+  }
+  --restartPoint;
+
+  q = restarts[restartPoint] * 16;
+
+  sub.reset(restartXY[restartPoint * 2], restartXY[restartPoint * 2 + 1]);
+
   restartTimer = 0;
   
   for(Enemy enemy : enemies)
@@ -189,12 +153,6 @@ void draw()
   
   q = q + 0.5;
 
-  if (up && subY > 6) subY -= 0.5;
-  else if (down) subY += 0.5;
-
-  if (left && subX >= 0.5) subX -= 0.5;
-  else if (right) subX += 0.5;
-
   image(playfield, -q, 0);
 
   int edtf = 0;
@@ -213,54 +171,22 @@ void draw()
 
   noTint();
 
-  if (alive)
+  if (q > hiq) hiq = q;
+  if (sub.update())
   {
-    PImage collision = get((int)subX, (int)subY, 56, 24);
-
-    image(sub, subX, subY);
-
-    collision.loadPixels();
-    for (int i = 0; i < sub.pixels.length; i++)
-    {
-      if ((sub.pixels[i] & 0xff000000) != 0)
-      {
-        if ((collision.pixels[i] & 0x000000ff) != 0xff)
-        {
-          alive = false;
-          break;
-        }
-      }
-    }
-    ///collision.updatePixels();
-    ///image(collision, 0, height-24);
-
-    if (alive && shoot)
-    {
-      for(int i = 0; i < bullets.length; ++i)
-      {
-        if (bullets[i]._active) continue;
-        bullets[i].activate(subX, subY);
-        break;
-      }
-      shoot = false;
-    }
-  }
-  else
-  {
-    restartTimer += frameMillis;
-    if (restartTimer >= 1000)
-    {
       restart();
-    }
   }
-  
+
+  noTint();
+
   for(int i = 0; i < bullets.length; ++i)
   {
     if (bullets[i].update())
     {
       for(Enemy enemy : enemies)
       {
-        if (enemy._y > bullets[i]._y + 2 || bullets[i]._y > enemy._y + 16) continue;
+        if (!enemy._alive || enemy._state == 3) continue;
+        if (bullets[i]._y < enemy._y || bullets[i]._y > enemy._y + 15) continue;
 
         int bcxs = (bullets[i]._x + iq) / 16;
         int bcxe = (bullets[i]._x + iq + 8) / 16;
