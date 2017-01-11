@@ -1,11 +1,21 @@
+// ** TODO **
+//
+// AIR
+// LIVES
+// SCORE
+// DEPTHCHARGE
+// LAZER
+// SHOOTER
+// BOSS/END
+
 PImage subSprite;
 byte[] mayans;
 PGraphics playfield;
 CharacterSet cset;
 ArrayList<Enemy> enemies;
 Bullet[] bullets;
+Enemy[] activeEnemies;
 byte[] map;
-
 Sub sub;
 
 boolean pause = false;
@@ -13,28 +23,23 @@ boolean pause = false;
 int restarts[] = { 0x0000, 0x004A, 0x00AA, 0x010B, 0x0180, 0x021A, 0xfff }; 
 int restartXY[]= { 12,12, 130,12, 130,34, 130,12, 130,12, 130,12 };
 
-float q = 0;
-float hiq = 0;
-int restartTimer;
-int frameMillis, lastMillis;
+int depthChargeXs[] = { 0x0c5, 0x0df, 0x0f7, 0x10e };
 
-int minSubY = 12;
-int restartPoint;
-int showRestart;
+float q = 0;
+
+int frameMillis, lastMillis;
+int restartPoint, showRestart;
 
 void masterReset()
 {
-  restartPoint = 0;
+  restartPoint = 1;
 }
 
 
 void restart()
 {
   q = restarts[restartPoint] * 16;
-
   sub.reset(restartXY[restartPoint * 2], restartXY[restartPoint * 2 + 1]);
-
-  restartTimer = 0;
   
   for(Enemy enemy : enemies)
   {
@@ -50,7 +55,7 @@ void restart()
 
 void setup()
 {
-  size(320, 200);
+  size(320, 176);
   
   masterReset();
 
@@ -81,6 +86,8 @@ void setup()
   {
     bullets[i] = new Bullet();
   }
+
+  activeEnemies = new Enemy[25];
 
   enemies = new ArrayList<Enemy>();
 
@@ -121,6 +128,11 @@ void setup()
     }
   }
 
+//  for (int i = 0; i < depthChargeXs.length; ++i)
+//  {
+//      enemies.add(new DepthCharger(depthChargeXs[i]));
+//  }
+
   // debug show the character set
   ///for (int i = 0; i < cset._charset.length; i++)
   ///{
@@ -158,7 +170,7 @@ void draw()
   if (char0 == restarts[restartPoint+1])
   {
     ++restartPoint;
-    restartTimer = 15;
+    showRestart = 31;
   }
 
   background(color(0, 0, 255));
@@ -167,7 +179,9 @@ void draw()
   fill(0);
   rect(0, 160, width, 16);
 
-  tint(0x63,(restartTimer * 4)+0x23,(restartTimer * 4)+0x23);
+  tint(0x63,(showRestart * 2)+0x23,(showRestart * 2)+0x23);
+  if (showRestart != 0) --showRestart;
+
   image(playfield, -q, 0);
 
   int edtf = 0;
@@ -175,9 +189,10 @@ void draw()
   
   for(Enemy enemy : enemies)
   {
-    if (enemy._x >= char0 && enemy._x < char0 + nchars + 1)
+    if (enemy._x >= char0 && enemy._x <= char0 + nchars)
     {
       enemy.update(iq);
+      activeEnemies[edtf] = enemy;
       ++edtf;
     }
   }
@@ -195,8 +210,10 @@ void draw()
   {
     if (bullets[i].update())
     {
-      for(Enemy enemy : enemies)
+      for(int j = 0; j < edtf; ++j)
       {
+        Enemy enemy = activeEnemies[j];
+
         if (!enemy._alive || enemy._state == 3) continue;
         if (bullets[i]._y < enemy._y || bullets[i]._y > enemy._y + 15) continue;
 
@@ -210,8 +227,6 @@ void draw()
       }
     }
   }  
-
-  if (restartTimer != 0) --restartTimer;
   
   fill(255);
   textSize(16);

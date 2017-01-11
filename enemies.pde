@@ -56,6 +56,31 @@ abstract class Enemy
 
 //
 
+class DepthChargeGenerator
+{
+  int _x;
+  
+  DepthChargeGenerator(int x)
+  {
+    _x = x;
+  }
+}
+
+class DepthCharge extends Enemy
+{
+  int _x;
+
+  DepthCharge(int x)
+  {
+    super(x, 12, 0x2e, color(0));
+    _x = x;
+  }
+
+  void update(int q)
+  {
+  }
+}
+
 class StaticMine extends Enemy
 {
   int _tetherlength;
@@ -71,6 +96,7 @@ class StaticMine extends Enemy
     if (!_alive) return;
     
     draw(q);
+
     if (_state != 3)
     {
       tint(20);
@@ -129,6 +155,31 @@ class Stalactite extends Enemy
 
   void update(int q)
   {
+    if (!_alive) return;
+
+    if(_state == 0)
+    {
+      _timeToActivate = (int)random(100,500);
+      _state = 1;
+    }
+    else if (_state == 1)
+    {
+      --_timeToActivate;
+      if (_timeToActivate == 0)
+      {
+        _state = 2;
+      }
+    }
+    else if (_state == 2)
+    {
+      ++_y;
+      int ccy = _y / 16;
+      if (ccy == 9 || map[_x + (ccy + 1) * 600] != 0)
+      {
+        _alive = false;
+      }
+    }
+
     draw(q);
   }
 }

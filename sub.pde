@@ -20,7 +20,7 @@ class Sub
   {
     if (_state == 0)
     {
-      if (up && _y > minSubY) _y -= 0.5;
+      if (up && _y > 12) _y -= 0.5;
       else if (down) _y += 0.5;
     
       if (left && _x >= 0.5) _x -= 0.5;
