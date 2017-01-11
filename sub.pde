@@ -94,6 +94,8 @@ void keyPressed()
   } else if (key == 'd') { 
     right = true; 
     left = false;
+  } else if (key == ' ') { 
+    pause = !pause;
   } else if (key == CODED)
   {
     if (keyCode == SHIFT) {

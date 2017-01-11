@@ -24,13 +24,15 @@ class Bullet
     for(int i = 0; i < bullcoll.pixels.length; ++i)
     {
       int c = bullcoll.pixels[i] & 0xffffff;
-      
       if ((c & 0xff) == 0xff) continue;
 
-      ///println(hex(bullcoll.pixels[i]));
-      ///println(hex(color(80)+1));
+      c &= 0xf8f8f8;
+      int d = c & 0xff0000;
 
-      if (c != 1 && c != 0x632728) continue;
+//println(hex(bullcoll.pixels[i]));
+//println(hex(c));
+
+      if (c != 0 && d != 0x600000) continue;
 
       _active = false;
       return true;

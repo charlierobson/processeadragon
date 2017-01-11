@@ -8,8 +8,10 @@ byte[] map;
 
 Sub sub;
 
-int restarts[] = { 0x0000, 0x0048+5, 0x00a8+5, 0x0109+5, 0x017e+5, 0x0218+5 }; 
-int restartXY[]= { 12,12, 112,12, 112,34, 112,12, 112,12, 112,12 };
+boolean pause = false;
+
+int restarts[] = { 0x0000, 0x004A, 0x00AA, 0x010B, 0x0180, 0x021A, 0xfff }; 
+int restartXY[]= { 12,12, 130,12, 130,34, 130,12, 130,12, 130,12 };
 
 float q = 0;
 float hiq = 0;
@@ -18,11 +20,33 @@ int frameMillis, lastMillis;
 
 int minSubY = 12;
 int restartPoint;
+int showRestart;
 
 void masterReset()
 {
   restartPoint = 0;
 }
+
+
+void restart()
+{
+  q = restarts[restartPoint] * 16;
+
+  sub.reset(restartXY[restartPoint * 2], restartXY[restartPoint * 2 + 1]);
+
+  restartTimer = 0;
+  
+  for(Enemy enemy : enemies)
+  {
+    enemy.reset();
+  }
+
+  lastMillis = millis();
+
+  pause = false;
+  showRestart = 0;
+}
+
 
 void setup()
 {
@@ -40,11 +64,6 @@ void setup()
   playfield = createGraphics(600*16, 11*16);
   playfield.beginDraw();
   playfield.noStroke();
-  playfield.background(color(0, 0, 255));
-  playfield.fill(color(100, 100, 255));
-  playfield.rect(0, 0, 600*16, 16);
-  playfield.fill(0);
-  playfield.rect(0, 160, 600*16, 16);
 
   map = loadBytes("src/hackery/sdmap.bin");
   for (int i = 0; i < map.length; i++)
@@ -52,7 +71,7 @@ void setup()
     int c = map[i] & 0x3f;
     if (c == 0) continue;
     int d = map[i] & 0xc0;
-    if (d == 0) playfield.tint(color(100,40,40));
+    if (d == 0) playfield.tint(255);
     else playfield.tint(0);
     playfield.image(cset._charset[c], (i % 600) * 16, (i / 600) * 16);
   }
@@ -117,31 +136,6 @@ void setup()
   restart();
 }
 
-void restart()
-{
-  restartPoint = 0;
-  while(restartPoint < 5 && restarts[restartPoint] <= hiq / 16)
-  {
-    ++restartPoint;
-  }
-  --restartPoint;
-
-restartPoint = 4;
-
-  q = restarts[restartPoint] * 16;
-
-  sub.reset(restartXY[restartPoint * 2], restartXY[restartPoint * 2 + 1]);
-
-  restartTimer = 0;
-  
-  for(Enemy enemy : enemies)
-  {
-    enemy.reset();
-  }
-
-  lastMillis = millis();
-}
-
 void mousePressed()
 {
   q = map(mouseX, 0, width, 0, 600*16-width);
@@ -152,15 +146,32 @@ void draw()
 {
   frameMillis = millis() - lastMillis;
   lastMillis = millis();
-  
+
+  if (pause)
+    return;
+
   q = q + 0.5;
 
+  int iq = (int)q;
+  int char0 = (int)(q / 16);
+
+  if (char0 == restarts[restartPoint+1])
+  {
+    ++restartPoint;
+    restartTimer = 15;
+  }
+
+  background(color(0, 0, 255));
+  fill(color(100, 100, 255));
+  rect(0, 0, width, 16);
+  fill(0);
+  rect(0, 160, width, 16);
+
+  tint(0x63,(restartTimer * 4)+0x23,(restartTimer * 4)+0x23);
   image(playfield, -q, 0);
 
   int edtf = 0;
-  int char0 = (int)(q / 16);
   int nchars = (width + 15) / 16;
-  int iq = (int)q;
   
   for(Enemy enemy : enemies)
   {
@@ -173,7 +184,6 @@ void draw()
 
   noTint();
 
-  if (q > hiq) hiq = q;
   if (sub.update())
   {
       restart();
@@ -200,4 +210,10 @@ void draw()
       }
     }
   }  
+
+  if (restartTimer != 0) --restartTimer;
+  
+  fill(255);
+  textSize(16);
+  text(String.format("%03x %d,%d [%d] %d",char0,(int)sub._x,(int)sub._y,restartPoint,edtf),10,170);
 }
