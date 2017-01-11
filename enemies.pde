@@ -19,6 +19,24 @@ abstract class Enemy
 
   abstract void update(int q);
 
+  boolean hasBeenShot(int iq, int bulletX, int bulletY)
+  {
+    return collisionCalc(iq, bulletX, bulletY, 16);
+  }
+  
+  protected boolean collisionCalc(int iq, int bulletX, int bulletY, int charHeight)
+  {
+    if (!_alive || _state == 3) return false;
+    if (bulletY < _y || bulletY > _y + (charHeight - 1)) return false;
+
+    int bcxs = (bulletX + iq) / 16;
+    int bcxe = (bulletX + iq + 8) / 16;
+
+    if (_x > bcxe || _x < bcxs) return false;
+
+    return true;
+  }
+
   void destroyed()
   {
     _state = 3;
@@ -56,28 +74,37 @@ abstract class Enemy
 
 //
 
-class DepthChargeGenerator
+class DepthCharger extends Enemy
 {
   int _x;
+  int _timer;
+  int _chargeY;
   
-  DepthChargeGenerator(int x)
+  DepthCharger(int x)
   {
+    super(x, 12, 0x32, color(0));
     _x = x;
-  }
-}
 
-class DepthCharge extends Enemy
-{
-  int _x;
-
-  DepthCharge(int x)
-  {
-    super(x, 12, 0x2e, color(0));
-    _x = x;
+    _chargeY = 16;
   }
 
   void update(int q)
   {
+    if (_state == 3) return;
+
+    ++_chargeY;
+    if (map[_x + (_chargeY / 16) * 600] != 0)
+      _chargeY = 16;
+
+    _y = _chargeY;
+
+    fill(0);
+    rect(_x * 16 - q, _y, 8, 3);
+  }
+
+  boolean hasBeenShot(int iq, int bulletX, int bulletY)
+  {
+    return super.collisionCalc(iq, bulletX, bulletY, 3);
   }
 }
 

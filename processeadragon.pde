@@ -32,7 +32,7 @@ int restartPoint, showRestart;
 
 void masterReset()
 {
-  restartPoint = 1;
+  restartPoint = 2;
 }
 
 
@@ -128,17 +128,17 @@ void setup()
     }
   }
 
-//  for (int i = 0; i < depthChargeXs.length; ++i)
-//  {
-//      enemies.add(new DepthCharger(depthChargeXs[i]));
-//  }
+  for (int i = 0; i < depthChargeXs.length; ++i)
+  {
+      enemies.add(new DepthCharger(depthChargeXs[i]));
+  }
 
   // debug show the character set
-  ///for (int i = 0; i < cset._charset.length; i++)
-  ///{
-  ///  playfield.tint((i&1)!=0 ? color(200) : color(255));
-  ///  playfield.image(cset._charset[i], i * 16, 160);
-  ///}
+  for (int i = 0; i < cset._charset.length; i++)
+  {
+   playfield.tint((i&1)!=0 ? color(200) : color(255));
+    playfield.image(cset._charset[i], i * 16, 160);
+  }
 
   playfield.endDraw();
 
@@ -213,21 +213,16 @@ void draw()
       for(int j = 0; j < edtf; ++j)
       {
         Enemy enemy = activeEnemies[j];
-
-        if (!enemy._alive || enemy._state == 3) continue;
-        if (bullets[i]._y < enemy._y || bullets[i]._y > enemy._y + 15) continue;
-
-        int bcxs = (bullets[i]._x + iq) / 16;
-        int bcxe = (bullets[i]._x + iq + 8) / 16;
-
-        if (enemy._x > bcxe || enemy._x < bcxs) continue;
-
-        enemy.destroyed();
-        break;
+        
+        if (enemy.hasBeenShot(iq, bullets[i]._x, bullets[i]._y))
+        {
+          enemy.destroyed();
+          break;
+        }
       }
     }
-  }  
-  
+  }
+
   fill(255);
   textSize(16);
   text(String.format("%03x %d,%d [%d] %d",char0,(int)sub._x,(int)sub._y,restartPoint,edtf),10,170);
