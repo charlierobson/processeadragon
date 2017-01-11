@@ -3,9 +3,9 @@ using System.IO;
 
 public class MapMunge
 {
-    static public void Main()
+    static public void Main(string[] args)
     {
-        var mines = File.ReadAllBytes(@"..\..\..\mines.bin");
+        var mines = File.ReadAllBytes(args[0]);
 
         int blocklen = mines.Length / 3;
 
