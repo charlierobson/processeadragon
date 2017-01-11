@@ -74,37 +74,120 @@ abstract class Enemy
 
 //
 
+class Charge
+{
+  float _y;
+  boolean _active;
+  
+  Charge()
+  {
+    _active = false;
+  }
+}
+
 class DepthCharger extends Enemy
 {
   int _x;
   int _timer;
   int _chargeY;
+  Charge[] _charges;
   
   DepthCharger(int x)
   {
-    super(x, 12, 0x32, color(0));
-    _x = x;
+    super(x, 12, 0, color(0));
 
-    _chargeY = 16;
+    _x = x;
+    _timer = 59;
+    _charges = new Charge[10];
+    for(int i = 0; i < _charges.length; ++i)
+    {
+      _charges[i] = new Charge();
+    }
+    preWarm();
   }
 
+  void destroyed()
+  {
+  }
+
+  private void preWarm()
+  {
+    for(int i = 0; i < 300; ++i)
+    {
+      for (Charge charge : _charges)
+      {
+        if (!charge._active) continue;
+  
+        charge._y += 0.5;
+        if (map[_x + ((int)(charge._y + 4) / 16) * 600] != 0)
+        {
+          charge._active = false;
+        }
+      }
+  
+      ++_timer;
+      if (_timer == 60)
+      {
+        _timer = 0;
+        for (Charge charge : _charges)
+        {
+          if (charge._active) continue;
+  
+          charge._active = true;
+          charge._y = 16;
+          break;
+        }
+      }
+    }
+  }
+  
   void update(int q)
   {
-    if (_state == 3) return;
+    for (Charge charge : _charges)
+    {
+      if (!charge._active) continue;
 
-    ++_chargeY;
-    if (map[_x + (_chargeY / 16) * 600] != 0)
-      _chargeY = 16;
+      charge._y += 0.5;
+      if (map[_x + ((int)charge._y / 16) * 600] != 0)
+      {
+        charge._active = false;
+      }
+      else
+      {
+        fill(0);
+        rect(_x * 16 - q, charge._y, 8, 3);
+      }
+    }
 
-    _y = _chargeY;
+    ++_timer;
+    if (_timer == 60)
+    {
+      _timer = 0;
+      for (Charge charge : _charges)
+      {
+        if (charge._active) continue;
 
-    fill(0);
-    rect(_x * 16 - q, _y, 8, 3);
+        charge._active = true;
+        charge._y = 16;
+        break;
+      }
+    }
   }
 
   boolean hasBeenShot(int iq, int bulletX, int bulletY)
   {
-    return super.collisionCalc(iq, bulletX, bulletY, 3);
+    for (Charge charge : _charges)
+    {
+      _y = (int)charge._y;
+      if (super.collisionCalc(iq, bulletX, bulletY, 3))
+      {
+        println("shot shot shot");
+        charge._active = false;
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 

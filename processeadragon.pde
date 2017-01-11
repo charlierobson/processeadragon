@@ -3,7 +3,6 @@
 // AIR
 // LIVES
 // SCORE
-// DEPTHCHARGE
 // LAZER
 // SHOOTER
 // BOSS/END
