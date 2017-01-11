@@ -5,7 +5,7 @@
 // SCORE
 // LAZER
 // SHOOTER
-// BOSS/END
+// BOSS
 
 PImage subSprite;
 byte[] mayans;
@@ -161,7 +161,10 @@ void draw()
   if (pause)
     return;
 
-  q = q + 0.5;
+  if (q < (600-20) * 16)
+  {
+    q = q + 0.5;
+  }
 
   int iq = (int)q;
   int char0 = (int)(q / 16);
