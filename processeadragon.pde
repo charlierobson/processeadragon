@@ -1,6 +1,5 @@
 // ** TODO **
 //
-// AIR
 // LIVES
 // SCORE
 // LAZER
@@ -191,29 +190,32 @@ void draw()
   if (pause)
     return;
 
-  if (sub._y > surfaceLevel)
+  if (sub.isAlive())
   {
-    if (air != 0)
+    if (sub._y > surfaceLevel)
     {
-      air -= airLossRate;
-      if (air <= 0)
+      if (air != 0)
       {
-        air = 0;
-        sub.destroyed();
+        air -= airLossRate;
+        if (air <= 0)
+        {
+          air = 0;
+          sub.destroy();
+        }
       }
     }
-  }
-  else
-  {
-    if (air < 100)
+    else
     {
-      air += 3 * airLossRate;
+      if (air < 100)
+      {
+        air += 3 * airLossRate;
+      }
     }
-  }
-
-  if (q < levelEndPosition)
-  {
-    q = q + scrollSpeed;
+  
+    if (q < levelEndPosition)
+    {
+      q = q + scrollSpeed;
+    }
   }
 
   int iq = (int)q;

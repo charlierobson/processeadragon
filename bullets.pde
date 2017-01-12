@@ -21,17 +21,19 @@ class Bullet
 
     PImage bullcoll = get(_x,_y,8,1);
     bullcoll.loadPixels();
+
     for(int i = 0; i < bullcoll.pixels.length; ++i)
     {
-      int c = bullcoll.pixels[i] & 0xffffff;
-      if ((c & 0xff) == 0xff) continue;
+      int c = bullcoll.pixels[i];
+      if ((c & 0xff) == 0xff) continue; // we don't collide with anything that has a full-on blue component
 
-      c &= 0xf8f8f8;
+      c &= 0xf8f8f8; // remove 3 least significant bits, as tinting of images has innaccuracies.
       int d = c & 0xff0000;
 
 //println(hex(bullcoll.pixels[i]));
 //println(hex(c));
 
+      // enemies are all black, background will have a red component of 0x60
       if (c != 0 && d != 0x600000) continue;
 
       _active = false;

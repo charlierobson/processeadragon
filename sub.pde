@@ -6,7 +6,7 @@ class Sub
   
   boolean isAlive()
   {
-    return _state != 2;
+    return _state == 0;
   }
 
   void reset(int x, int y)
@@ -16,7 +16,7 @@ class Sub
     _state = 0;
   }
 
-  void destroyed()
+  void destroy()
   {
     _state = 1;
     _timer = 0;
@@ -44,7 +44,7 @@ class Sub
         {
           if ((collision.pixels[i] & 0x000000ff) < 0xfe)
           {
-            destroyed();
+            destroy();
             break;
           }
         }
@@ -63,7 +63,7 @@ class Sub
     }
     else if (_state == 1)
     {
-      int n = 250 - _timer * 4;
+      int n = 250 - _timer * 2;
       
       tint(color(n,n,255));
       image(cset._charset[41 + _timer / 16], _x - 8, _y - 8);
@@ -72,7 +72,7 @@ class Sub
       image(cset._charset[41 + _timer / 16], _x + 8, _y + 8);
 
       ++_timer;
-      if (_timer == 48) _state = 2;
+      if (_timer == 96) _state = 2;
     }
 
     return _state == 2;
