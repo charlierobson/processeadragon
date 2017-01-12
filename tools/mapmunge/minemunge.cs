@@ -22,12 +22,12 @@ public class MapMunge
             var isMover = (xhi & 0x80) != 0;
             var isMine  = (xhi & 0x40) != 0;
 
-            var type = isMover & !isMine ? "STLT" : "MINE";
+            var type = isMover & !isMine ? "stalactite" : isMover ? "mine" : "staticmine";
 
             xhi &= 0x0f;
             var x = (int)xhi * 256 + (int)xlo;
 
-            Console.WriteLine($"{type},{x,3},{y},{isMover}");
+            Console.WriteLine($"{x,3},{y},{type}");
 
             ++yoff;
             ++xhioff;

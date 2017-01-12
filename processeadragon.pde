@@ -10,8 +10,10 @@ PImage subSprite;
 byte[] mayans;
 PGraphics playfield;
 CharacterSet cset;
-ArrayList<Enemy> enemies;
+
 Bullet[] bullets;
+
+Enemy[] allEnemies;
 Enemy[] activeEnemies;
 
 Map worldMap;
@@ -46,7 +48,7 @@ int restartPoint, showRestart;
 
 void masterReset()
 {
-  restartPoint = 0;
+  restartPoint = 1;
 }
 
 
@@ -56,7 +58,7 @@ void restart()
   
   sub.reset(restartXY[restartPoint * 2], restartXY[restartPoint * 2 + 1]);
 
-  for (Enemy enemy : enemies)
+  for (Enemy enemy : allEnemies)
   {
     enemy.reset();
   }
@@ -113,50 +115,7 @@ void setup()
   }
 
   activeEnemies = new Enemy[25];
-
-  enemies = new ArrayList<Enemy>();
-
-  mayans  = loadBytes("src/hackery/mines.bin");
-
-  int mc = mayans.length / 3;
-  int my = 0;
-  int mxh = mc;
-  int mxl = mc*2;
-
-  playfield.tint(color(0));
-
-  for (int i = 0; i < mc; i++)
-  {
-    short m = (short)(((mayans[i+mxh] & 0xFF) << 8) | (mayans[i+mxl] & 0xFF));
-
-    int x = m & 0x3ff;
-    int y = mayans[i+my];
-
-    // type 0 = passive mine
-    // type 1 = tethered mine
-    // type 2 = stalactite
-    // type 3 = active mine
-    int type = (m & 0xc000) >> 14;
-
-    if (type == 2) enemies.add(new Stalactite(x, y));
-    else if (type == 3) enemies.add(new Mine(x, y));
-    else
-    {
-      int ty = y + 1;
-      int tetherlen = 0;
-      while (ty < mapHeightInChars && worldMap._map[x + ty * mapWidthInChars] == 0)
-      {
-        ++tetherlen;
-        ++ty;
-      }
-      enemies.add(new StaticMine(x, y, tetherlen));
-    }
-  }
-
-  for (int i = 0; i < depthChargeXs.length; ++i)
-  {
-    enemies.add(new DepthCharger(depthChargeXs[i]));
-  }
+  allEnemies = createAllEnemies();
 
   if (DEBUG)
   {
@@ -241,7 +200,7 @@ void draw()
   int edtf = 0;
   int nchars = (width + (characterWidthInPixels-1)) / characterWidthInPixels; // flips between widthInChars and widthInChars+1, depending on scroll value
 
-  for (Enemy enemy : enemies)
+  for (Enemy enemy : allEnemies)
   {
     if (enemy._x >= char0 && enemy._x <= char0 + nchars)
     {

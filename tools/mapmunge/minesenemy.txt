@@ -1,0 +1,216 @@
+  8,6,staticmine
+ 10,3,staticmine
+ 11,8,mine
+ 13,8,mine
+ 14,8,mine
+ 17,2,staticmine
+ 19,4,staticmine
+ 22,6,mine
+ 24,6,mine
+ 25,6,mine
+ 27,4,staticmine
+ 29,2,staticmine
+ 31,8,mine
+ 33,8,mine
+ 35,6,mine
+ 38,5,mine
+ 42,1,staticmine
+ 45,1,staticmine
+ 47,2,staticmine
+ 49,8,mine
+ 51,8,mine
+ 52,8,mine
+ 56,7,mine
+ 57,5,staticmine
+ 59,7,mine
+ 62,7,mine
+ 63,7,mine
+ 64,7,mine
+ 66,3,staticmine
+ 67,7,mine
+ 72,5,mine
+ 73,3,staticmine
+ 75,5,mine
+ 78,4,mine
+ 81,1,staticmine
+ 87,2,staticmine
+ 90,6,mine
+ 92,6,mine
+ 93,4,staticmine
+ 95,7,mine
+ 97,3,staticmine
+ 98,8,mine
+100,8,mine
+103,8,mine
+106,9,mine
+107,2,staticmine
+109,9,mine
+110,9,mine
+113,8,mine
+114,4,staticmine
+118,7,mine
+126,9,mine
+140,8,mine
+156,8,staticmine
+157,7,staticmine
+162,7,mine
+167,7,mine
+170,8,mine
+174,6,mine
+177,8,mine
+183,6,mine
+185,2,staticmine
+187,7,mine
+188,7,mine
+190,4,staticmine
+192,8,mine
+194,8,mine
+195,8,mine
+199,6,mine
+206,5,mine
+209,3,mine
+212,1,staticmine
+214,1,staticmine
+215,2,staticmine
+218,7,mine
+221,6,mine
+225,3,staticmine
+226,8,mine
+228,6,mine
+230,4,mine
+232,2,staticmine
+233,6,mine
+234,4,staticmine
+237,3,mine
+238,3,mine
+241,1,staticmine
+244,1,staticmine
+246,2,staticmine
+248,8,mine
+252,6,mine
+253,6,mine
+254,3,staticmine
+255,6,mine
+256,4,staticmine
+259,8,mine
+261,8,mine
+262,2,staticmine
+266,5,mine
+273,1,staticmine
+283,2,staticmine
+284,2,staticmine
+288,8,mine
+289,8,staticmine
+290,8,staticmine
+291,8,staticmine
+292,8,staticmine
+298,6,staticmine
+299,6,staticmine
+300,6,staticmine
+307,6,mine
+309,6,mine
+317,7,staticmine
+318,7,staticmine
+319,7,staticmine
+326,9,staticmine
+327,9,staticmine
+340,4,staticmine
+341,4,staticmine
+350,7,staticmine
+359,2,staticmine
+362,9,mine
+365,9,mine
+366,9,mine
+367,9,mine
+368,9,mine
+371,9,mine
+374,9,mine
+375,9,mine
+376,9,mine
+377,9,mine
+380,9,mine
+384,5,staticmine
+385,5,staticmine
+387,4,staticmine
+388,4,staticmine
+390,3,staticmine
+391,3,staticmine
+396,2,mine
+397,1,staticmine
+398,2,staticmine
+401,7,mine
+404,6,mine
+405,6,mine
+406,2,staticmine
+411,2,mine
+413,1,staticmine
+417,6,mine
+418,6,mine
+422,5,staticmine
+423,8,mine
+425,6,mine
+426,2,staticmine
+428,1,staticmine
+429,1,staticmine
+432,3,mine
+433,2,staticmine
+435,8,mine
+436,4,staticmine
+437,8,mine
+438,8,mine
+439,5,staticmine
+444,8,mine
+448,7,mine
+456,5,staticmine
+459,8,mine
+460,8,mine
+469,8,mine
+471,7,mine
+473,6,mine
+475,5,mine
+477,4,mine
+479,3,mine
+481,2,mine
+492,9,mine
+493,3,stalactite
+495,4,stalactite
+496,9,mine
+497,3,stalactite
+501,4,stalactite
+502,4,stalactite
+504,8,mine
+507,1,stalactite
+508,1,stalactite
+509,9,mine
+510,5,staticmine
+512,2,stalactite
+513,9,mine
+515,4,stalactite
+516,6,staticmine
+518,5,staticmine
+520,1,stalactite
+521,1,stalactite
+522,7,mine
+523,1,stalactite
+525,7,mine
+526,5,staticmine
+528,3,stalactite
+529,7,mine
+532,4,stalactite
+533,7,mine
+534,4,stalactite
+545,8,mine
+549,5,mine
+552,3,mine
+553,1,staticmine
+554,3,mine
+555,3,mine
+559,3,staticmine
+562,7,mine
+566,7,mine
+567,6,staticmine
+569,7,mine
+570,7,mine
+573,5,staticmine
+576,6,mine
+597,5,staticmine
