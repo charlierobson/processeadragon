@@ -1,13 +1,13 @@
 class Map
 {
-  byte[] _map;
+  static final int _width = 600;
+  static final int _height = 10;
 
-  int _width = 600;
-  int _height = 10;
+  byte[] _map;
 
   Map()
   {
-    _map = loadBytes("src/hackery/sdmap.bin");
+    _map = loadBytes("mungedmap.bin");
   }
 
   byte cell(int x, int y)

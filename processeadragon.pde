@@ -7,7 +7,7 @@
 // BOSS
 
 PImage subSprite;
-byte[] mayans;
+
 PGraphics playfield;
 CharacterSet cset;
 
@@ -26,11 +26,6 @@ boolean pause = false;
 int restarts[] = { 0x0000, 0x004A, 0x00AA, 0x010B, 0x0180, 0x021A, 0xfff }; 
 int restartXY[]= { 12, 12, 130, 12, 130, 34, 130, 12, 130, 12, 130, 12 };
 
-int depthChargeXs[] = { 0x0c5, 0x0df, 0x0f7, 0x10e };
-
-int mapWidthInChars = 600;
-int mapHeightInChars = 10;
-
 int screenWidthInChars = 20;
 
 int characterWidthInPixels = 16;
@@ -41,7 +36,7 @@ int surfaceLevel = 15; // sub is under water when Y > this value
 float q = 0;
 float airLossRate = 0.025;
 float scrollSpeed = 0.5;
-float levelEndPosition = (mapWidthInChars-screenWidthInChars) * characterWidthInPixels;
+float levelEndPosition = (worldMap._width-screenWidthInChars) * characterWidthInPixels;
 
 int frameMillis, lastMillis;
 int restartPoint, showRestart;
@@ -65,18 +60,22 @@ void restart()
 
   lastMillis = millis();
 
+  shoot = false; // CONTROLS class??
+  
   pause = false;
   showRestart = 0;
 
   air = 100;
 }
 
-boolean DEBUG = false;
+boolean DEBUG;
 
 void setup()
 {
-  size(320, 176); // normal
-  //size(320, 192); // DEBUG
+  DEBUG = false;
+  size(320, 176);
+  //DEBUG = true;
+  //size(320, 192);
 
   masterReset();
 
@@ -87,7 +86,7 @@ void setup()
 
   sub = new Sub();
 
-  playfield = createGraphics(mapWidthInChars * characterWidthInPixels, 11*16);
+  playfield = createGraphics(worldMap._width * characterWidthInPixels, 11*16);
   playfield.beginDraw();
   playfield.noStroke();
 
@@ -95,17 +94,10 @@ void setup()
   
   for (int i = 0; i < worldMap._map.length; ++i)
   {
-    int b = worldMap._map[i];
+    int c = worldMap._map[i];
+    if (c == 0) continue;
 
-    if (b == 0) continue;
-
-    int colourBit = b & 0xc0;
-    b = b & 0x3f;
-
-    if (colourBit == 0) playfield.tint(255);
-    else playfield.tint(0);
-
-    playfield.image(cset._charset[b], (i % worldMap._width) * characterWidthInPixels, (i / worldMap._width) * characterWidthInPixels);
+    playfield.image(cset._charset[c], (i % worldMap._width) * characterWidthInPixels, (i / worldMap._width) * characterWidthInPixels);
   }
 
   bullets = new Bullet[5];

@@ -4,13 +4,13 @@ abstract class Enemy
   color _colour;
 
   boolean _alive;
-
-  int _timeToActivate;
+  int _timer;
 
   Enemy(int x, int y, int character, color colour)
   {
     _x = x;
     _iy = y * 16;
+    _y = _iy;
     _c = character;
     _colour = colour;
     _alive = true;
@@ -40,13 +40,14 @@ abstract class Enemy
   void destroyed()
   {
     _state = 3;
-    _timeToActivate = 0;
+    _timer = 0;
   }
 
   void reset()
   {
     _y = _iy;
     _state = 0;
+    _timer = 0;
     _alive = true;
   }
 
@@ -60,13 +61,13 @@ abstract class Enemy
       image(cset._charset[_c], _x * 16 - q, _y);
     } else
     {
-      int n = 250 - _timeToActivate * 8;
+      int n = 250 - _timer * 8;
 
       tint(color(n, n, 255));
-      image(cset._charset[45 + _timeToActivate / 6], _x * 16 - q, _y);
+      image(cset._charset[45 + _timer / 6], _x * 16 - q, _y);
 
-      ++_timeToActivate;
-      if (_timeToActivate == 18) _alive = false;
+      ++_timer;
+      if (_timer == 18) _alive = false;
     }
   }
 }
@@ -84,16 +85,12 @@ class Charge
 
 class DepthCharger extends Enemy
 {
-  int _x;
-  int _timer;
-  int _chargeY;
   Charge[] _charges;
 
   DepthCharger(int x)
   {
-    super(x, 12, 0, color(0));
+    super(x, 12, 30, color(0));
 
-    _x = x;
     _timer = 59;
     _charges = new Charge[10];
     for (int i = 0; i < _charges.length; ++i)
@@ -140,6 +137,11 @@ class DepthCharger extends Enemy
 
   void update(int q)
   {
+    _y = 0; // y is updated by collision code, reset it here
+    tint(_colour);
+    image(cset._charset[_c], (_x - 1) * 16 - q, _y);
+    image(cset._charset[_c+1], _x * 16 - q, _y);
+
     for (Charge charge : _charges)
     {
       if (!charge._active) continue;
@@ -177,13 +179,100 @@ class DepthCharger extends Enemy
       _y = (int)charge._y;
       if (super.collisionCalc(iq, bulletX, bulletY, 3))
       {
-        println("shot shot shot");
         charge._active = false;
         return true;
       }
     }
 
     return false;
+  }
+}
+
+class Shot
+{
+  boolean _active;
+  float _x, _y;
+}
+
+class Shooter extends Enemy
+{
+  Shot[] _shots;
+  int _shotsRemaining;
+
+  Shooter(int x, int y)
+  {
+    super(x, y, 32, color(0));
+
+    _shots = new Shot[8];
+
+    for (int i = 0; i < _shots.length; ++i)
+    {
+      _shots[i] = new Shot();
+    }
+
+    _shotsRemaining = _shots.length;
+  }
+
+  void reset()
+  {
+    super.reset();
+
+    for (Shot shot : _shots)
+    {
+      shot._active = false;
+    }
+    _timer = 0;
+    _shotsRemaining = _shots.length;
+  }
+  
+  void update(int q)
+  {
+    draw(q);
+    ++_timer;
+    if ((_timer & 128) == 0)
+    {
+      if (_shotsRemaining != 0)
+      {
+        // shooting mode
+        if ((_timer & 7) == 0)
+        {
+          int t = (_timer & 63) / 8;
+          _shots[t]._active = true;
+          _shots[t]._x = _x * 16;
+          _shots[t]._y = _y;
+          --_shotsRemaining;
+        }
+      }
+    } else
+    {
+      _shotsRemaining = _shots.length;
+    }
+
+    for (Shot shot : _shots)
+    {
+      if (!shot._active) continue;
+      
+      shot._x += 0.5;
+      shot._y += 0.5;
+      
+      if (worldMap.cell((int)(shot._x + 8) / 16, (int)(shot._y + 8) / 16) != 0)
+      {
+        shot._active = false;
+      }
+      else image(cset._charset[37], shot._x - q, shot._y);
+    }
+  }
+}
+
+class Laser extends Enemy
+{
+  Laser(int x, int y)
+  {
+    super(x, y, 33, color(0));
+  }
+  void update(int q)
+  {
+    draw(q);
   }
 }
 
@@ -198,7 +287,7 @@ class StaticMine extends Enemy
     _tetherlength = 0;
 
     int ty = y + 1;
-    while (ty < mapHeightInChars && worldMap._map[x + ty * mapWidthInChars] == 0)
+    while (ty < worldMap._height && worldMap._map[x + ty * worldMap._width] == 0)
     {
       ++ty;
       ++_tetherlength;
@@ -235,12 +324,12 @@ class Mine extends Enemy
 
     if (_state == 0)
     {
-      _timeToActivate = (int)random(200, 800);
+      _timer = (int)random(200, 800);
       _state = 1;
     } else if (_state == 1)
     {
-      --_timeToActivate;
-      if (_timeToActivate == 0)
+      --_timer;
+      if (_timer == 0)
       {
         _state = 2;
       }
@@ -250,7 +339,7 @@ class Mine extends Enemy
       if ((_y < 16) || (_y & 15) == 15 && worldMap.cell(_x, (int)_y / 16) != 0)
       {
         _state = 3;
-        _timeToActivate = 0;
+        _timer = 0;
       }
     }
 
@@ -271,12 +360,12 @@ class Stalactite extends Enemy
 
     if (_state == 0)
     {
-      _timeToActivate = (int)random(100, 500);
+      _timer = (int)random(100, 500);
       _state = 1;
     } else if (_state == 1)
     {
-      --_timeToActivate;
-      if (_timeToActivate == 0)
+      --_timer;
+      if (_timer == 0)
       {
         _state = 2;
       }
@@ -543,7 +632,8 @@ int[] enemyList = {
 
 Enemy enemyFactory(int x, int y, int type)
 {
-  switch(type) {
+  switch(type)
+  {
   case staticmine: 
     return new StaticMine(x, y);
   case mine: 
@@ -553,11 +643,12 @@ Enemy enemyFactory(int x, int y, int type)
   case stalactite: 
     return new Stalactite(x, y);
   case shooter:
-    return new Mine(x,y);
+    return new Shooter(x, y);
   case laser:
-    return new Mine(x,y);
+    return new Laser(x, y);
 
   default:
+    println("ERROR - unknown enemy type encountered");
     return null;
   }
 }
