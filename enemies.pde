@@ -119,7 +119,7 @@ class DepthCharger extends Enemy
         if (!charge._active) continue;
   
         charge._y += 0.5;
-        if (map[_x + ((int)(charge._y + 4) / 16) * 600] != 0)
+        if (worldMap.cell(_x, (int)(charge._y + 4) / 16) != 0)
         {
           charge._active = false;
         }
@@ -148,7 +148,7 @@ class DepthCharger extends Enemy
       if (!charge._active) continue;
 
       charge._y += 0.5;
-      if (map[_x + ((int)charge._y / 16) * 600] != 0)
+      if (worldMap.cell(_x, (int)charge._y / 16) != 0)
       {
         charge._active = false;
       }
@@ -245,7 +245,7 @@ class Mine extends Enemy
     else if (_state == 2)
     {
       --_y;
-      if ((_y < 16) || (_y & 15) == 15 && map[_x + (_y / 16) * 600] != 0)
+      if ((_y < 16) || (_y & 15) == 15 && worldMap.cell(_x, (int)_y / 16) != 0)
       {
         _state = 3;
         _timeToActivate = 0;
@@ -284,7 +284,7 @@ class Stalactite extends Enemy
     {
       ++_y;
       int ccy = _y / 16;
-      if (ccy == 9 || map[_x + (ccy + 1) * 600] != 0)
+      if (ccy == 9 || worldMap.cell(_x, ccy + 1) != 0)
       {
         _alive = false;
       }

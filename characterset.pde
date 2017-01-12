@@ -47,4 +47,20 @@ class CharacterSet
       pg.updatePixels();
     }
   }
+
+  void csText(int cx, int cy, String text, color col)
+  {
+    tint(col);
+
+    cx *= 16;
+    cy *= 16;
+    for (int i = 0; i < text.length(); ++i)
+    {
+      int c = text.charAt(i);
+      image(_charset[c+32], cx, cy);
+      cx += 16;
+    }
+    
+    noTint();
+  }
 }

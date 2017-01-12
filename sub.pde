@@ -16,6 +16,13 @@ class Sub
     _state = 0;
   }
 
+  void destroyed()
+  {
+    _state = 1;
+    _timer = 0;
+    shoot = false;
+  }
+  
   boolean update()
   {
     if (_state == 0)
@@ -37,9 +44,7 @@ class Sub
         {
           if ((collision.pixels[i] & 0x000000ff) < 0xfe)
           {
-            _state = 1;
-            _timer = 0;
-            shoot = false;
+            destroyed();
             break;
           }
         }
