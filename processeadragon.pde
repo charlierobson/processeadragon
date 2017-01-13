@@ -61,8 +61,6 @@ void restart()
   
   pause = false;
   showRestart = 0;
-
-  air = 100;
 }
 
 boolean DEBUG;
@@ -71,6 +69,7 @@ void setup()
 {
   DEBUG = false;
   size(640, 400);
+   surface.setResizable(true);
 
   masterReset();
 
@@ -81,10 +80,10 @@ void setup()
 
   sub = new Sub();
 
-  g = createGraphics(Map._windowWidth * CharacterSet._width, Map._height * CharacterSet._height);
-  g2 = createGraphics(Map._windowWidth * CharacterSet._width, (Map._height + 2) * CharacterSet._height);
+  g = createGraphics(pfWidth, pfHeight);
+  g2 = createGraphics(pfWidth, pfHeight + 2 * CharacterSet._height);
 
-  playfield = createGraphics(Map._width * CharacterSet._width, Map._height * CharacterSet._height);
+  playfield = createGraphics(Map._width * CharacterSet._width, pfHeight);
   playfield.beginDraw();
   playfield.noStroke();
 
@@ -119,6 +118,8 @@ void setup()
 
   playfield.endDraw();
 
+  noStroke();
+  
   restart();
 }
 
@@ -156,17 +157,13 @@ void draw()
   g.beginDraw();
   g.noStroke();
   g.background(color(0, 0, 255));
-  g.fill(0);
-  g.rect(0, 0, pfWidth, CharacterSet._height);
   g.fill(color(100, 100, 255));
-  g.rect(0, CharacterSet._height, pfWidth, CharacterSet._height);
-  g.fill(0);
-  g.rect(0, pfHeight + CharacterSet._height, pfWidth, CharacterSet._height);
+  g.rect(0, 0, pfWidth, CharacterSet._height);
 
   g.tint(0x63, (showRestart * 2)+0x23, (showRestart * 2)+0x23);
   if (showRestart != 0) --showRestart;
 
-  g.image(playfield, -q, 16);
+  g.image(playfield, -q, 0);
 
   int edtf = 0;
   int nchars = (width + (CharacterSet._width-1)) / CharacterSet._width; // flips between widthInChars and widthInChars+1, depending on scroll value
@@ -209,11 +206,13 @@ void draw()
   g.endDraw();
 
   g2.beginDraw();
+  g2.noStroke();
   g2.image(g, 0, 16);
-  cset.csText(g2, 0, 10, "AIR:", color(255));
+  cset.csText(g2, 0, 0, "SCORE: 0", color(255));
+  cset.csText(g2, 0, 11, "AIR:", color(255));
   g2.fill(0,200,0);
   float rsize = map(sub._air,0,100,0x00,0xf0);
-  g2.rect(0x48,163,rsize,10);
+  g2.rect(0x48,179,rsize,10);
   g2.endDraw();
 
   image(g2, 0, 0, width, height);
