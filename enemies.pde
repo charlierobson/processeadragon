@@ -17,7 +17,7 @@ abstract class Enemy
     _state = 0;
   }
 
-  abstract void update(int q);
+  abstract void update(PGraphics g, int q);
 
   boolean hasBeenShot(int iq, int bulletX, int bulletY)
   {
@@ -51,20 +51,20 @@ abstract class Enemy
     _alive = true;
   }
 
-  void draw(int q)
+  void draw(PGraphics g, int q)
   {
     if (!_alive) return;
 
     if (_state != 3)
     {
-      tint(_colour);
-      image(cset._charset[_c], _x * 16 - q, _y);
+      g.tint(_colour);
+      g.image(cset._charset[_c], _x * 16 - q, _y);
     } else
     {
       int n = 250 - _timer * 8;
 
-      tint(color(n, n, 255));
-      image(cset._charset[45 + _timer / 6], _x * 16 - q, _y);
+      g.tint(color(n, n, 255));
+      g.image(cset._charset[45 + _timer / 6], _x * 16 - q, _y);
 
       ++_timer;
       if (_timer == 18) _alive = false;
@@ -135,12 +135,12 @@ class DepthCharger extends Enemy
     }
   }
 
-  void update(int q)
+  void update(PGraphics g, int q)
   {
     _y = 0; // y is updated by collision code, reset it here
-    tint(_colour);
-    image(cset._charset[_c], (_x - 1) * 16 - q, _y);
-    image(cset._charset[_c+1], _x * 16 - q, _y);
+    g.tint(_colour);
+    g.image(cset._charset[_c], (_x - 1) * 16 - q, _y);
+    g.image(cset._charset[_c+1], _x * 16 - q, _y);
 
     for (Charge charge : _charges)
     {
@@ -152,8 +152,8 @@ class DepthCharger extends Enemy
         charge._active = false;
       } else
       {
-        fill(0);
-        rect(_x * 16 - q, charge._y, 8, 3);
+        g.fill(0);
+        g.rect(_x * 16 - q, charge._y, 8, 3);
       }
     }
 
@@ -225,9 +225,10 @@ class Shooter extends Enemy
     _shotsRemaining = _shots.length;
   }
   
-  void update(int q)
+  void update(PGraphics g, int q)
   {
-    draw(q);
+    draw(g, q);
+
     ++_timer;
     if ((_timer & 128) == 0)
     {
@@ -259,7 +260,7 @@ class Shooter extends Enemy
       {
         shot._active = false;
       }
-      else image(cset._charset[37], shot._x - q, shot._y);
+      else g.image(cset._charset[37], shot._x - q, shot._y);
     }
   }
 }
@@ -270,9 +271,10 @@ class Laser extends Enemy
   {
     super(x, y, 33, color(0));
   }
-  void update(int q)
+
+  void update(PGraphics g, int q)
   {
-    draw(q);
+    draw(g, q);
   }
 }
 
@@ -294,18 +296,18 @@ class StaticMine extends Enemy
     }
   }
 
-  void update(int q)
+  void update(PGraphics g, int q)
   {
     if (!_alive) return;
 
-    draw(q);
+    draw(g, q);
 
     if (_state != 3)
     {
-      tint(20);
+      g.tint(20);
       for (int i = 0; i < _tetherlength; ++i)
       {
-        image(cset._charset[34], _x * 16 - q, _y + (16 * (i + 1)));
+        g.image(cset._charset[34], _x * 16 - q, _y + (16 * (i + 1)));
       }
     }
   }
@@ -318,7 +320,7 @@ class Mine extends Enemy
     super(x, y, 63, color(0));
   }
 
-  void update(int q)
+  void update(PGraphics g, int q)
   {
     if (!_alive) return;
 
@@ -343,7 +345,7 @@ class Mine extends Enemy
       }
     }
 
-    draw(q);
+    draw(g, q);
   }
 }
 
@@ -354,7 +356,7 @@ class Stalactite extends Enemy
     super(x, y, 55, color(0));
   }
 
-  void update(int q)
+  void update(PGraphics g, int q)
   {
     if (!_alive) return;
 
@@ -379,7 +381,7 @@ class Stalactite extends Enemy
       }
     }
 
-    draw(q);
+    draw(g, q);
   }
 }
 

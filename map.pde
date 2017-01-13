@@ -3,6 +3,8 @@ class Map
   static final int _width = 600;
   static final int _height = 10;
 
+  static final int _windowWidth = 20;
+
   byte[] _map;
 
   Map()

@@ -8,7 +8,8 @@
 
 PImage subSprite;
 
-PGraphics playfield;
+PGraphics playfield, g, g2;
+
 CharacterSet cset;
 
 Bullet[] bullets;
@@ -19,37 +20,33 @@ Enemy[] activeEnemies;
 Map worldMap;
 
 Sub sub;
-float air;
 
 boolean pause = false;
 
 int restarts[] = { 0x0000, 0x004A, 0x00AA, 0x010B, 0x0180, 0x021A, 0xfff }; 
 int restartXY[]= { 12, 12, 130, 12, 130, 34, 130, 12, 130, 12, 130, 12 };
 
-int screenWidthInChars = 20;
+int pfWidth = Map._windowWidth * CharacterSet._width;
+int pfHeight = Map._height * CharacterSet._height;
 
-int characterWidthInPixels = 16;
-int characterHeightInPixels = 16;
-
-int surfaceLevel = 15; // sub is under water when Y > this value
+final int surfaceLevel = CharacterSet._height; // sub is under water when Y >= this value
 
 float q = 0;
-float airLossRate = 0.025;
 float scrollSpeed = 0.5;
-float levelEndPosition = (worldMap._width-screenWidthInChars) * characterWidthInPixels;
+float levelEndPosition = (Map._width-Map._windowWidth) * CharacterSet._width;
 
 int frameMillis, lastMillis;
 int restartPoint, showRestart;
 
 void masterReset()
 {
-  restartPoint = 1;
+  restartPoint = 0;
 }
 
 
 void restart()
 {
-  q = restarts[restartPoint] * characterWidthInPixels;
+  q = restarts[restartPoint] * CharacterSet._width;
   
   sub.reset(restartXY[restartPoint * 2], restartXY[restartPoint * 2 + 1]);
 
@@ -73,9 +70,7 @@ boolean DEBUG;
 void setup()
 {
   DEBUG = false;
-  size(320, 176);
-  //DEBUG = true;
-  //size(320, 192);
+  size(640, 400);
 
   masterReset();
 
@@ -86,7 +81,10 @@ void setup()
 
   sub = new Sub();
 
-  playfield = createGraphics(worldMap._width * characterWidthInPixels, 11*16);
+  g = createGraphics(Map._windowWidth * CharacterSet._width, Map._height * CharacterSet._height);
+  g2 = createGraphics(Map._windowWidth * CharacterSet._width, (Map._height + 2) * CharacterSet._height);
+
+  playfield = createGraphics(Map._width * CharacterSet._width, Map._height * CharacterSet._height);
   playfield.beginDraw();
   playfield.noStroke();
 
@@ -97,7 +95,7 @@ void setup()
     int c = worldMap._map[i];
     if (c == 0) continue;
 
-    playfield.image(cset._charset[c], (i % worldMap._width) * characterWidthInPixels, (i / worldMap._width) * characterWidthInPixels);
+    playfield.image(cset._charset[c], (i % Map._width) * CharacterSet._width, (i / Map._width) * CharacterSet._width);
   }
 
   bullets = new Bullet[5];
@@ -121,9 +119,6 @@ void setup()
 
   playfield.endDraw();
 
-  noStroke();
-  noTint();
-
   restart();
 }
 
@@ -143,26 +138,6 @@ void draw()
 
   if (sub.isAlive())
   {
-    if (sub._y > surfaceLevel)
-    {
-      if (air != 0)
-      {
-        air -= airLossRate;
-        if (air <= 0)
-        {
-          air = 0;
-          sub.destroy();
-        }
-      }
-    }
-    else
-    {
-      if (air < 100)
-      {
-        air += 3 * airLossRate;
-      }
-    }
-  
     if (q < levelEndPosition)
     {
       q = q + scrollSpeed;
@@ -178,42 +153,46 @@ void draw()
     showRestart = 31;
   }
 
-  background(color(0, 0, 255));
-  fill(color(100, 100, 255));
-  rect(0, 0, width, characterHeightInPixels);
-  fill(0);
-  rect(0, 160, width, characterHeightInPixels);
+  g.beginDraw();
+  g.noStroke();
+  g.background(color(0, 0, 255));
+  g.fill(0);
+  g.rect(0, 0, pfWidth, CharacterSet._height);
+  g.fill(color(100, 100, 255));
+  g.rect(0, CharacterSet._height, pfWidth, CharacterSet._height);
+  g.fill(0);
+  g.rect(0, pfHeight + CharacterSet._height, pfWidth, CharacterSet._height);
 
-  tint(0x63, (showRestart * 2)+0x23, (showRestart * 2)+0x23);
+  g.tint(0x63, (showRestart * 2)+0x23, (showRestart * 2)+0x23);
   if (showRestart != 0) --showRestart;
 
-  image(playfield, -q, 0);
+  g.image(playfield, -q, 16);
 
   int edtf = 0;
-  int nchars = (width + (characterWidthInPixels-1)) / characterWidthInPixels; // flips between widthInChars and widthInChars+1, depending on scroll value
+  int nchars = (width + (CharacterSet._width-1)) / CharacterSet._width; // flips between widthInChars and widthInChars+1, depending on scroll value
 
   for (Enemy enemy : allEnemies)
   {
     if (enemy._x >= char0 && enemy._x <= char0 + nchars)
     {
-      enemy.update(iq);
+      enemy.update(g, iq);
       activeEnemies[edtf] = enemy;
       ++edtf;
     }
   }
 
-  noTint();
+  g.noTint();
 
-  if (sub.update())
+  if (sub.update(g))
   {
     restart();
   }
 
-  noTint();
+  g.noTint();
 
   for (int i = 0; i < bullets.length; ++i)
   {
-    if (bullets[i].update())
+    if (bullets[i].update(g))
     {
       for (int j = 0; j < edtf; ++j)
       {
@@ -227,12 +206,18 @@ void draw()
       }
     }
   }
+  g.endDraw();
 
-  cset.csText(0,10, "AIR:", color(255));
-  fill(0,200,0);
-  float rsize = map(air,0,100,0x00,0xf0);
-  rect(0x48,163,rsize,10);
+  g2.beginDraw();
+  g2.image(g, 0, 16);
+  cset.csText(g2, 0, 10, "AIR:", color(255));
+  g2.fill(0,200,0);
+  float rsize = map(sub._air,0,100,0x00,0xf0);
+  g2.rect(0x48,163,rsize,10);
+  g2.endDraw();
 
+  image(g2, 0, 0, width, height);
+  
   if (DEBUG)
   {
     fill(255);

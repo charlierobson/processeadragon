@@ -3,6 +3,9 @@ class Sub
   float _x, _y;
   int _state;
   int _timer;
+
+  float _air;
+  private final float airLossRate = 0.03;
   
   boolean isAlive()
   {
@@ -14,6 +17,7 @@ class Sub
     _x = x;
     _y = y;
     _state = 0;
+    _air = 100;
   }
 
   void destroy()
@@ -23,30 +27,49 @@ class Sub
     shoot = false;
   }
   
-  boolean update()
+  boolean update(PGraphics g)
   {
     if (_state == 0)
     {
+      if (_y >= surfaceLevel)
+      {
+        if (_air != 0)
+        {
+          _air -= airLossRate;
+          if (_air <= 0)
+          {
+            _air = 0;
+            destroy();
+          }
+        }
+      }
+      else
+      {
+        _air += 3 * airLossRate;
+        if (_air > 100) _air = 100;
+      }
+
       if (up && _y > 12) _y -= 0.5;
       else if (down) _y += 0.5;
     
       if (left && _x >= 0.5) _x -= 0.5;
       else if (right && _x < 130) _x += 0.5;
     
-      PImage collision = get((int)_x, (int)_y, subSprite.width, subSprite.height);
+      PImage collision = g.get((int)_x, (int)_y, subSprite.width, subSprite.height);
 
-      image(subSprite, _x, _y);
+      g.image(subSprite, _x, _y);
 
       collision.loadPixels();
       for (int i = 0; i < subSprite.pixels.length; i++)
       {
-        if ((subSprite.pixels[i] & 0xff000000) != 0)
+        // test the alpha mask, continue if this is a transparent pixel
+        if ((subSprite.pixels[i] & 0xff000000) != 0) continue;
+
+        if ((collision.pixels[i] & 0x000000fc) != 0xfc)
         {
-          if ((collision.pixels[i] & 0x000000ff) < 0xfe)
-          {
-            destroy();
-            break;
-          }
+          println(collision.pixels[i] & 0x000000fc);
+          destroy();
+          break;
         }
       }
 
@@ -65,11 +88,11 @@ class Sub
     {
       int n = 250 - _timer * 2;
       
-      tint(color(n,n,255));
-      image(cset._charset[41 + _timer / 16], _x - 8, _y - 8);
-      image(cset._charset[41 + _timer / 16], _x + 8, _y - 8);
-      image(cset._charset[41 + _timer / 16], _x - 8, _y + 8);
-      image(cset._charset[41 + _timer / 16], _x + 8, _y + 8);
+      g.tint(color(n,n,255));
+      g.image(cset._charset[41 + _timer / 16], _x - 8, _y - 8);
+      g.image(cset._charset[41 + _timer / 16], _x + 8, _y - 8);
+      g.image(cset._charset[41 + _timer / 16], _x - 8, _y + 8);
+      g.image(cset._charset[41 + _timer / 16], _x + 8, _y + 8);
 
       ++_timer;
       if (_timer == 96) _state = 2;

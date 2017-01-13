@@ -2,6 +2,9 @@ class CharacterSet
 {
   PImage[] _charset;
 
+  static final int _width = 16;
+  static final int _height = 16;
+  
   CharacterSet()
   {
     color c = color(255);
@@ -48,19 +51,17 @@ class CharacterSet
     }
   }
 
-  void csText(int cx, int cy, String text, color col)
+  void csText(PGraphics g, int cx, int cy, String text, color col)
   {
-    tint(col);
+    g.tint(col);
 
     cx *= 16;
     cy *= 16;
     for (int i = 0; i < text.length(); ++i)
     {
       int c = text.charAt(i);
-      image(_charset[c+32], cx, cy);
+      g.image(_charset[c+32], cx, cy);
       cx += 16;
     }
-    
-    noTint();
   }
 }

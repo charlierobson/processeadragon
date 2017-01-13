@@ -15,11 +15,11 @@ class Bullet
     _active = true;
   }
  
-  boolean update()
+  boolean update(PGraphics g)
   {
     if (!_active) return false;
 
-    PImage bullcoll = get(_x,_y,8,1);
+    PImage bullcoll = g.get(_x,_y,8,1);
     bullcoll.loadPixels();
 
     for(int i = 0; i < bullcoll.pixels.length; ++i)
@@ -40,8 +40,8 @@ class Bullet
       return true;
     }
     
-    fill(255);
-    rect(_x,_y,8,1);
+    g.fill(255);
+    g.rect(_x,_y,8,1);
 
     _x += 2;
 
