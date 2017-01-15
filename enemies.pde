@@ -230,17 +230,17 @@ class Shooter extends Enemy
     draw(g, q);
 
     ++_timer;
-    if ((_timer & 128) == 0)
+    if ((_timer & 64) == 0)
     {
       if (_shotsRemaining != 0)
       {
         // shooting mode
-        if ((_timer & 7) == 0)
+        if ((_timer & 3) == 0)
         {
-          int t = (_timer & 63) / 8;
+          int t = (_timer & 31) / 4;
           _shots[t]._active = true;
-          _shots[t]._x = _x * 16;
-          _shots[t]._y = _y;
+          _shots[t]._x = _x * 16 + 16;
+          _shots[t]._y = _y + 16;
           --_shotsRemaining;
         }
       }
@@ -253,14 +253,14 @@ class Shooter extends Enemy
     {
       if (!shot._active) continue;
       
-      shot._x += 0.5;
-      shot._y += 0.5;
+      shot._x += 2;
+      shot._y += 2;
       
       if (worldMap.cell((int)(shot._x + 8) / 16, (int)(shot._y + 8) / 16) != 0)
       {
         shot._active = false;
       }
-      else g.image(cset._charset[37], shot._x - q, shot._y);
+      else g.image(cset._charset[37 + (_y & 1)], shot._x - q, shot._y);
     }
   }
 }

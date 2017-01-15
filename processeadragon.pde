@@ -38,9 +38,13 @@ float levelEndPosition = (Map._width-Map._windowWidth) * CharacterSet._width;
 int frameMillis, lastMillis;
 int restartPoint, showRestart;
 
+int score, lives;
+
 void masterReset()
 {
   restartPoint = 0;
+  score = 0;
+  lives = 5;
 }
 
 
@@ -63,13 +67,12 @@ void restart()
   showRestart = 0;
 }
 
-boolean DEBUG;
+boolean DEBUG = false;
 
 void setup()
 {
-  DEBUG = false;
-  size(640, 400);
-   surface.setResizable(true);
+  size(320, 200);
+  surface.setResizable(true);
 
   masterReset();
 
@@ -112,7 +115,7 @@ void setup()
     for (int i = 0; i < cset._charset.length; i++)
     {
       playfield.tint((i&1)!=0 ? color(200) : color(255));
-      playfield.image(cset._charset[i], i * 16, 17);
+      playfield.image(cset._charset[i], i * 16, 160);
     }
   }
 
@@ -166,11 +169,10 @@ void draw()
   g.image(playfield, -q, 0);
 
   int edtf = 0;
-  int nchars = (width + (CharacterSet._width-1)) / CharacterSet._width; // flips between widthInChars and widthInChars+1, depending on scroll value
 
   for (Enemy enemy : allEnemies)
   {
-    if (enemy._x >= char0 && enemy._x <= char0 + nchars)
+    if (enemy._x >= char0 && enemy._x < char0 + Map._windowWidth + 1)
     {
       enemy.update(g, iq);
       activeEnemies[edtf] = enemy;
@@ -206,6 +208,7 @@ void draw()
   g.endDraw();
 
   g2.beginDraw();
+  g2.background(0);
   g2.noStroke();
   g2.image(g, 0, 16);
   cset.csText(g2, 0, 0, "SCORE: 0", color(255));
@@ -213,6 +216,7 @@ void draw()
   g2.fill(0,200,0);
   float rsize = map(sub._air,0,100,0x00,0xf0);
   g2.rect(0x48,179,rsize,10);
+  println(rsize);
   g2.endDraw();
 
   image(g2, 0, 0, width, height);
@@ -221,6 +225,6 @@ void draw()
   {
     fill(255);
     textSize(16);
-    text(String.format("%03x %d,%d [%d] %d", char0, (int)sub._x, (int)sub._y, restartPoint, edtf), 10, 170);
+    text(String.format("%03x %d,%d [%d] %d", char0, (int)sub._x, (int)sub._y, restartPoint, edtf), 10, 160);
   }
 }

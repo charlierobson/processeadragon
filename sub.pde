@@ -5,7 +5,7 @@ class Sub
   int _timer;
 
   float _air;
-  private final float airLossRate = 0.03;
+  private final float airLossRate = 0.02;
   
   boolean isAlive()
   {
@@ -31,16 +31,13 @@ class Sub
   {
     if (_state == 0)
     {
-      if (_y >= surfaceLevel)
+      if (_y >= surfaceLevel && _air != 0)
       {
-        if (_air != 0)
+        _air -= airLossRate;
+        if (_air <= 0)
         {
-          _air -= airLossRate;
-          if (_air <= 0)
-          {
-            _air = 0;
-            destroy();
-          }
+          _air = 0;
+          destroy();
         }
       }
       else
@@ -63,15 +60,20 @@ class Sub
       for (int i = 0; i < subSprite.pixels.length; i++)
       {
         // test the alpha mask, continue if this is a transparent pixel
-        if ((subSprite.pixels[i] & 0xff000000) != 0) continue;
+        if ((subSprite.pixels[i] & 0xff000000) == 0) {
+          ///collision.pixels[i] = color(255);
+          continue;
+        }
 
         if ((collision.pixels[i] & 0x000000fc) != 0xfc)
         {
-          println(collision.pixels[i] & 0x000000fc);
+          ///println(collision.pixels[i] & 0x000000fc);
           destroy();
           break;
         }
       }
+
+      ///g.image(collision, 0,0);
 
       if (shoot)
       {
