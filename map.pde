@@ -16,4 +16,21 @@ class Map
   {
     return _map[x + y * _width];
   }
+  
+  void draw(PGraphics target, int mapOffset)
+  {
+    target.beginDraw();
+    target.noStroke();
+    target.noTint();
+    target.clear();
+
+    for(int y = 0; y < 10; ++y)
+    {
+      for(int i = 0; i < target.width / 16; ++i)
+      {
+        target.image(cset._charset[cell(mapOffset + i, y)], i * 16, y * 16);
+      }
+    }
+    target.endDraw();
+  }
 }

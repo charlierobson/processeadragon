@@ -42,7 +42,7 @@ int score, lives;
 
 void masterReset()
 {
-  restartPoint = 0;
+  restartPoint = 1;
   score = 0;
   lives = 5;
 }
@@ -86,20 +86,10 @@ void setup()
   g = createGraphics(pfWidth, pfHeight);
   g2 = createGraphics(pfWidth, pfHeight + 2 * CharacterSet._height);
 
-  playfield = createGraphics(Map._width * CharacterSet._width, pfHeight);
-  playfield.beginDraw();
-  playfield.noStroke();
+  playfield = createGraphics((Map._windowWidth + 1) * CharacterSet._width, pfHeight);
 
   worldMap = new Map();
   
-  for (int i = 0; i < worldMap._map.length; ++i)
-  {
-    int c = worldMap._map[i];
-    if (c == 0) continue;
-
-    playfield.image(cset._charset[c], (i % Map._width) * CharacterSet._width, (i / Map._width) * CharacterSet._width);
-  }
-
   bullets = new Bullet[5];
   for (int i = 0; i < bullets.length; ++i)
   {
@@ -108,18 +98,6 @@ void setup()
 
   activeEnemies = new Enemy[25];
   allEnemies = createAllEnemies();
-
-  if (DEBUG)
-  {
-    // show the character set
-    for (int i = 0; i < cset._charset.length; i++)
-    {
-      playfield.tint((i&1)!=0 ? color(200) : color(255));
-      playfield.image(cset._charset[i], i * 16, 160);
-    }
-  }
-
-  playfield.endDraw();
 
   noStroke();
   
@@ -139,7 +117,7 @@ void draw()
 
   if (pause)
     return;
-
+  
   if (sub.isAlive())
   {
     if (q < levelEndPosition)
@@ -166,7 +144,8 @@ void draw()
   g.tint(0x63, (showRestart * 2)+0x23, (showRestart * 2)+0x23);
   if (showRestart != 0) --showRestart;
 
-  g.image(playfield, -q, 0);
+  worldMap.draw(playfield, (int)(q / 16));
+  g.image(playfield, -((int)q&15), 0);
 
   int edtf = 0;
 
